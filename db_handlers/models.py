@@ -10,6 +10,7 @@ class Bus(Base):
     __tablename__ = 'buses'
 
     bus_id = Column(Integer, primary_key=True, autoincrement=True)
+    tg_id = Column(Integer, nullable=False)
     number = Column(String(20), nullable=False)
     brand = Column(String(50), nullable=False)
     driver_name = Column(String(50), nullable=False)
@@ -38,10 +39,14 @@ class Request(Base):
     route = Column(String(255), nullable=False)
     date_range = Column(String(100), nullable=False)
     comfort_level = Column(String(20), nullable=False)
+    seat_count = Column(Integer, nullable=False)
     requires_air_conditioning = Column(Boolean, nullable=False)
 
-    responses = relationship("Response", back_populates="request")
+    # Связь с пользователем
     user = relationship("User", back_populates="requests")
+
+    # Ответы, связанные с этим запросом
+    responses = relationship("Response", back_populates="request")
 
 
 class Response(Base):

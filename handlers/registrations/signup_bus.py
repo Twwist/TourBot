@@ -25,7 +25,7 @@ bus_router = Router()
 # Старт регистрации автобуса
 async def bus_registration(message: types.Message, state: FSMContext):
     await message.answer(
-        "🚌 <b>Теперь нужно зарегистрировать автобус</b>\n\n"
+        "🚌 <b>Нужно зарегистрировать автобус</b>\n\n"
         "Введите номер автобуса:"
     )
     await state.set_state(SignUpBus.number)
@@ -134,6 +134,7 @@ async def handle_confirmation(callback: types.CallbackQuery, state: FSMContext):
         has_air_conditioning = data['has_air_conditioning']
 
         new_bus = Bus(
+            tg_id=tg_id,
             number=number,
             brand=brand,
             driver_name=driver_name,

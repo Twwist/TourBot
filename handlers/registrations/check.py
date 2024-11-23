@@ -1,5 +1,5 @@
 from sqlalchemy.orm import sessionmaker
-from db_handlers.models import User
+from db_handlers.models import User, Bus
 from db_handlers.create_db import session
 
 
@@ -17,11 +17,13 @@ def is_user_registered(message):
 
 
 def is_bus_registered(message):
-    user_id = message.from_user.id
-    user = False  # {'first_name': message.from_user.first_name}
-    # user = session.query(User).filter(User.user_id == user_id).first()
+    tg_id = message.from_user.id
 
-    if user:
-        return user
+    # Запрос к базе данных для поиска пользователя с соответствующим user_id
+    bus = session.query(Bus).filter(
+        Bus.tg_id == tg_id).first()  # Используем tg_id, так как user_id может быть внутренним
+
+    if bus:
+        return bus  # Возвращаем найденного пользователя
     else:
-        return False
+        return False  # Если пользователь не найден, возвращаем False
