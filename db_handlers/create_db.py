@@ -4,10 +4,15 @@ from db_handlers.models import Base  # Импортируем Base из models.p
 
 from decouple import config
 
-# Подключение к базе данных
-DATABASE_URL = config('DATABASE_URL')
-engine = create_engine(DATABASE_URL, echo=True)
-
+DATABASE = {
+    'user': 'myuser',
+    'password': 'mypassword',
+    'host': '45.90.216.229',  # Или IP-адрес сервера
+    'port': '5432',       # Стандартный порт PostgreSQL
+    'database': 'my_database_name'
+}
+db_url = f"postgresql+psycopg2://{DATABASE['user']}:{DATABASE['password']}@{DATABASE['host']}:{DATABASE['port']}/{DATABASE['database']}"
+engine = create_engine(db_url)
 # Создание всех таблиц в базе данных
 Base.metadata.create_all(engine)
 

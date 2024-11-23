@@ -9,7 +9,7 @@ async def menu(message, message_text: str):
     :param message_text: текст сообщения
     """
 
-    buttons_type = ['Мой автобусы', 'Предложения', 'Расписание']
+    buttons_type = ['🚌Мой автобус', '📋Предложения', '🗓Расписание']
 
     buttons = [types.KeyboardButton(text=text) for text in buttons_type]
     return_menu = types.ReplyKeyboardMarkup(

@@ -1,15 +1,20 @@
-from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey
-from sqlalchemy.orm import relationship
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, Float, ForeignKey, ARRAY
+from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
-# Определение базового класса для моделей
+# Base class for models (не нужно дважды определять Base)
 Base = declarative_base()
+
+# Table "Users"
+# Table "Users"
+
+ase = declarative_base()
 
 
 class Bus(Base):
     __tablename__ = 'buses'
 
     tg_id = Column(Integer, nullable=False)
+    user_id = Column(Integer, nullable=False)
     bus_id = Column(Integer, primary_key=True, autoincrement=True)
     number = Column(String(20), nullable=False)
     brand = Column(String(50), nullable=False)
@@ -21,6 +26,8 @@ class Bus(Base):
     microphone_for_guide = Column(Boolean, nullable=False)
     monitor = Column(Boolean, nullable=False)
     arm_chairs = Column(Boolean, nullable=False)
+
+    responses = relationship("Response", back_populates="bus")
 
     schedules = relationship("Schedule", back_populates="bus")
 
@@ -64,8 +71,12 @@ class Response(Base):
     __tablename__ = 'responses'
 
     response_id = Column(Integer, primary_key=True, autoincrement=True)  # Идентификатор отклика
-    user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)  # Идентификатор пользователя, который оставил отклик
-    request_id = Column(Integer, ForeignKey('requests.request_id'), nullable=False)  # Идентификатор заказа, на который сделан отклик
+    user_id = Column(Integer, ForeignKey('users.user_id'),
+                     nullable=False)  # Идентификатор пользователя, который оставил отклик
+    bus_id = Column(Integer, ForeignKey('buses.bus_id'),
+                    nullable=False)  # Идентификатор пользователя, который оставил отклик
+    request_id = Column(Integer, ForeignKey('requests.request_id'),
+                        nullable=False)  # Идентификатор заказа, на который сделан отклик
     price = Column(Float, nullable=False)  # Цена, за которую пользователь готов выполнить заказ
 
     # Определяем связь с таблицей Request (для получения связанных данных о заказе)
@@ -74,14 +85,24 @@ class Response(Base):
     # Определяем связь с таблицей User (для получения связанных данных о пользователе)
     user = relationship("User", back_populates="responses")
 
+    bus = relationship("Bus", back_populates="responses")
+
 
 class User(Base):
     __tablename__ = 'users'
     user_id = Column(Integer, primary_key=True, autoincrement=True)
     tg_id = Column(Integer)
+    phone_number = Column(String(20), nullable=False)
     username = Column(String(50), unique=True, nullable=False)
     password = Column(String(255), nullable=False)
     role = Column(String(20), nullable=False)
     requests = relationship("Request", back_populates="user")
 
     responses = relationship("Response", back_populates="user")
+
+    @property
+    def is_active(self):
+        return True
+
+    def get_id(self):
+        return str(self.user_id)

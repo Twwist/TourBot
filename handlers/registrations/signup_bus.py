@@ -177,6 +177,7 @@ async def handle_confirmation(callback: types.CallbackQuery, state: FSMContext):
         # Получаем имя водителя из базы данных
         user = session.query(User).filter(User.tg_id == tg_id).first()
         driver_name = user.username if user else "Неизвестно"
+        user_id = user.user_id
 
         # Извлекаем остальные данные
         type_bus = data["type_bus"]  # Категория автобуса (например, тип)
@@ -188,6 +189,7 @@ async def handle_confirmation(callback: types.CallbackQuery, state: FSMContext):
         # Создаем новый экземпляр автобуса
         new_bus = Bus(
             tg_id=tg_id,
+            user_id=user_id,
             number=number,
             brand=brand,
             driver_name=driver_name,
