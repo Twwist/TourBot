@@ -8,7 +8,7 @@ from handlers.signup import user_password_waiting
 
 def is_registered(message):
     user_id = message.from_user.id
-    user = False # {'first_name': message.from_user.first_name}
+    user = False  # {'first_name': message.from_user.first_name}
     # user = session.query(User).filter(User.user_id == user_id).first()
 
     if user:
@@ -25,10 +25,7 @@ async def cmd_start(message: Message, state: FSMContext):
     user = is_registered(message)
     if user:
         first_name = user['first_name']
-        await menu(message,
-                   f"👋Здравствуйте, {first_name}\nЧто Вас интересует?",
-                   'choice'
-                   )
+        await menu(message,f"👋Здравствуйте, {first_name}\nЧто Вас интересует?")
     else:
         await message.answer("👋Здравствуйте\n\n"
                              "❌<b>Вы ещё не зарегистрированы.</b>\n"
