@@ -12,9 +12,11 @@ from handlers.menu.menu import menu
 class SignUpBus(StatesGroup):
     number = State()
     brand = State()
-    seat_count = State()
-    comfort_level = State()
     has_air_conditioning = State()
+    mic_for_guide = State()
+    tv_monitor = State()
+    reclining_seats = State()
+    category = State()
     confirmation = State()
 
 
@@ -45,39 +47,8 @@ async def handle_bus_number(message: types.Message, state: FSMContext):
 async def handle_bus_brand(message: types.Message, state: FSMContext):
     brand = message.text
     await state.update_data(brand=brand)
-    await message.answer("Введите количество мест в автобусе:")
-    await state.set_state(SignUpBus.seat_count)
-
-
-# Ввод количества мест
-@bus_router.message(SignUpBus.seat_count)
-async def handle_seats_count(message: types.Message, state: FSMContext):
-    seat_count = message.text
-    if not seat_count.isdigit():
-        await message.answer("Количество мест должно быть числом. Попробуйте ещё раз.")
-        return
-    await state.update_data(seat_count=int(seat_count))
-    await message.answer(
-        "Укажите уровень комфорта автобуса по шкале от 1 до 5:\n"
-        "1 - отвратительно, 2 - плохо, 3 - нормально, 4 - хорошо, 5 - очень комфортно."
-    )
-    await state.set_state(SignUpBus.comfort_level)
-
-
-# Ввод уровня комфорта
-@bus_router.message(SignUpBus.comfort_level)
-async def handle_comfort_level(message: types.Message, state: FSMContext):
-    comfort_level = message.text
-    if not comfort_level.isdigit() or not (1 <= int(comfort_level) <= 5):
-        await message.answer("Введите число от 1 до 5.")
-        return
-    await state.update_data(comfort_level=int(comfort_level))
-
-    # Кнопки для выбора наличия кондиционера
     air_conditioner_keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="Да"), KeyboardButton(text="Нет")]
-        ],
+        keyboard=[[KeyboardButton(text="Да"), KeyboardButton(text="Нет")]],
         resize_keyboard=True
     )
     await message.answer("Есть ли кондиционер в автобусе?", reply_markup=air_conditioner_keyboard)
@@ -93,19 +64,96 @@ async def handle_air_conditioner(message: types.Message, state: FSMContext):
         return
     await state.update_data(has_air_conditioning=(has_air_conditioning == "да"))
 
-    # Показываем итоговые данные
-    data = await state.get_data()
+    mic_keyboard = ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text="Да"), KeyboardButton(text="Нет")]],
+        resize_keyboard=True
+    )
+    await message.answer("Есть ли микрофон для гида?", reply_markup=mic_keyboard)
+    await state.set_state(SignUpBus.mic_for_guide)
 
+
+# Ввод информации о микрофоне
+@bus_router.message(SignUpBus.mic_for_guide)
+async def handle_mic_for_guide(message: types.Message, state: FSMContext):
+    mic_for_guide = message.text.lower()
+    if mic_for_guide not in ["да", "нет"]:
+        await message.answer("Выберите 'Да' или 'Нет' с помощью кнопок.")
+        return
+    await state.update_data(mic_for_guide=(mic_for_guide == "да"))
+
+    tv_keyboard = ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text="Да"), KeyboardButton(text="Нет")]],
+        resize_keyboard=True
+    )
+    await message.answer("Есть ли монитор/ТВ?", reply_markup=tv_keyboard)
+    await state.set_state(SignUpBus.tv_monitor)
+
+
+# Ввод информации о мониторе/ТВ
+@bus_router.message(SignUpBus.tv_monitor)
+async def handle_tv_monitor(message: types.Message, state: FSMContext):
+    tv_monitor = message.text.lower()
+    if tv_monitor not in ["да", "нет"]:
+        await message.answer("Выберите 'Да' или 'Нет' с помощью кнопок.")
+        return
+    await state.update_data(tv_monitor=(tv_monitor == "да"))
+
+    recline_keyboard = ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text="Да"), KeyboardButton(text="Нет")]],
+        resize_keyboard=True
+    )
+    await message.answer("Есть ли откидные кресла?", reply_markup=recline_keyboard)
+    await state.set_state(SignUpBus.reclining_seats)
+
+
+# Ввод информации об откидных креслах
+@bus_router.message(SignUpBus.reclining_seats)
+async def handle_reclining_seats(message: types.Message, state: FSMContext):
+    reclining_seats = message.text.lower()
+    if reclining_seats not in ["да", "нет"]:
+        await message.answer("Выберите 'Да' или 'Нет' с помощью кнопок.")
+        return
+    await state.update_data(reclining_seats=(reclining_seats == "да"))
+
+    category_keyboard = ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="Минивены (5-9 мест)"), KeyboardButton(text="Микроавтобусы (10-20 мест)")],
+            [KeyboardButton(text="Малые автобусы (21-30 мест)"), KeyboardButton(text="Средние автобусы (31-45 мест)")],
+            [KeyboardButton(text="Большие автобусы (46-60 мест)"),
+             KeyboardButton(text="Особо большие автобусы (61-90 мест)")]
+        ],
+        resize_keyboard=True
+    )
+    await message.answer("Выберите категорию транспорта:", reply_markup=category_keyboard)
+    await state.set_state(SignUpBus.category)
+
+
+# Ввод категории транспорта
+@bus_router.message(SignUpBus.category)
+async def handle_category(message: types.Message, state: FSMContext):
+    type_bus = message.text
+    valid_categories = [
+        "Минивены (5-9 мест)", "Микроавтобусы (10-20 мест)", "Малые автобусы (21-30 мест)",
+        "Средние автобусы (31-45 мест)", "Большие автобусы (46-60 мест)", "Особо большие автобусы (61-90 мест)"
+    ]
+    if type_bus not in valid_categories:
+        await message.answer("Выберите категорию из предложенных.")
+        return
+    await state.update_data(type_bus=type_bus)
+
+    # Вывод итоговых данных
+    data = await state.get_data()
     await message.answer(
         f"✅ <b>Данные автобуса:</b>\n\n"
         f"🔹 Номер: {data['number']}\n"
         f"🔹 Марка: {data['brand']}\n"
-        f"🔹 Мест: {data['seat_count']}\n"
-        f"🔹 Комфорт: {data['comfort_level']}\n"
-        f"🔹 Кондиционер: {'Да' if data['has_air_conditioning'] else 'Нет'}"
+        f"🔹 Кондиционер: {'Да' if data['has_air_conditioning'] else 'Нет'}\n"
+        f"🔹 Микрофон для гида: {'Да' if data['mic_for_guide'] else 'Нет'}\n"
+        f"🔹 Монитор/ТВ: {'Да' if data['tv_monitor'] else 'Нет'}\n"
+        f"🔹 Откидные кресла: {'Да' if data['reclining_seats'] else 'Нет'}\n"
+        f"🔹 Категория: {data['type_bus']}"
     )
 
-    # Инлайн-кнопки для подтверждения
     confirm_keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text="✅ Всё верно", callback_data="confirm_data")],
@@ -120,35 +168,45 @@ async def handle_air_conditioner(message: types.Message, state: FSMContext):
 @bus_router.callback_query(SignUpBus.confirmation)
 async def handle_confirmation(callback: types.CallbackQuery, state: FSMContext):
     if callback.data == "confirm_data":
+        # Получаем данные из состояния
         data = await state.get_data()
         tg_id = callback.from_user.id
         number = data["number"]
-        brand = data['brand']
+        brand = data["brand"]
 
-        user = session.query(User).filter(
-            User.tg_id == tg_id).first()
-        driver_name = user.username
+        # Получаем имя водителя из базы данных
+        user = session.query(User).filter(User.tg_id == tg_id).first()
+        driver_name = user.username if user else "Неизвестно"
 
-        seat_count = data['seat_count']
-        comfort_level = data['comfort_level']
-        has_air_conditioning = data['has_air_conditioning']
+        # Извлекаем остальные данные
+        type_bus = data["type_bus"]  # Категория автобуса (например, тип)
+        condition = data["has_air_conditioning"]  # Кондиционер
+        microphone_for_guide = data["mic_for_guide"]  # Микрофон для гида
+        monitor = data["tv_monitor"]  # Монитор/ТВ
+        arm_chairs = data["reclining_seats"]  # Откидные кресла
 
+        # Создаем новый экземпляр автобуса
         new_bus = Bus(
             tg_id=tg_id,
             number=number,
             brand=brand,
             driver_name=driver_name,
-            seat_count=seat_count,
-            comfort_level=comfort_level,
-            has_air_conditioning=has_air_conditioning
+            type_bus=type_bus,
+            condition=condition,
+            microphone_for_guide=microphone_for_guide,
+            monitor=monitor,
+            arm_chairs=arm_chairs
         )
 
-        # Добавляем автобус в сессию и сохраняем в базе данных
+        # Сохраняем автобус в базе данных
         session.add(new_bus)
         session.commit()
+
+        # Уведомляем пользователя об успешном сохранении
         await menu(callback, "🚀 Данные успешно сохранены! Спасибо!")
         await state.clear()
     elif callback.data == "cancel_data":
+        # Если данные неверны, перезапускаем процесс регистрации
         await callback.message.answer("❌ Регистрация отменена. Начнём заново.")
         await state.clear()
         await bus_registration(callback.message, state)
