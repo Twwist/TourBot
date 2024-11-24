@@ -32,21 +32,21 @@ async def user_password_waiting(message: types.Message, state: FSMContext):
 @signup_router.message(SignUpUser.password)
 async def handle_user_password(message: types.Message, state: FSMContext):
     if message.text == correct_password:
-        await message.answer("✅ <b>Пароль верный!</b>\nВведите Ваш номер")
+        await message.answer("✅ <b>Пароль верный!</b>\nВведите Ваш номер телефона:")
         await state.set_state(SignUpUser.phone_number)
     else:
         await message.answer("❌ <b>Неправильный пароль.</b> Попробуйте ещё раз.")
 
 
 @signup_router.message(SignUpUser.phone_number)
-async def handle_user_password(message: types.Message, state: FSMContext):
+async def handle_user_phone_number(message: types.Message, state: FSMContext):
     phone_number = message.text
     if len(phone_number) == 12:
         await message.answer("✅ <b>Введите ваше имя (например, Иван Иванов):</b>")
         await state.update_data(phone_number=phone_number)
         await state.set_state(SignUpUser.name)
     else:
-        await message.answer("❌ <b>Неправильный формат номера. Правильный: +79725271234.</b> Попробуйте ещё раз.")
+        await message.answer("❌ <b>Неправильный формат номера.</b> Правильный формат: <b>+79725271234</b>. Попробуйте ещё раз.")
 
 
 # Обработка имени

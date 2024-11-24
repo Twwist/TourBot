@@ -62,6 +62,9 @@ class Request(Base):
     monitor = Column(Boolean, nullable=False)
     arm_chairs = Column(Boolean, nullable=False)
 
+    status = Column(String(255), nullable=False)
+    send_or_no = Column(Boolean, nullable=False)
+
     user = relationship("User", back_populates="requests")
 
     responses = relationship("Response", back_populates="request")

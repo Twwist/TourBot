@@ -24,14 +24,17 @@ async def my_buses(message: types.Message, state: FSMContext):
         bus = is_bus_registered(message)
         if bus:
             # Отображаем информацию о зарегистрированном автобусе
-            await message.answer("<b>Ваш автобус:</b>\n"
-                                 f"<b>Номер</b>: {bus.number}\n"
-                                 f"<b>Марка</b>: {bus.brand}\n"
-                                 f"<b>Кондиционер</b>: {'Есть' if bus.condition else 'Нет'}\n"
-                                 f"<b>Микрофон для гида</b>: {'Есть' if bus.microphone_for_guide else 'Нет'}\n"
-                                 f"<b>Монитор/ТВ</b>: {'Есть' if bus.monitor else 'Нет'}\n"
-                                 f"<b>Откидные кресла</b>: {'Есть' if bus.arm_chairs else 'Нет'}\n"
-                                 f"<b>Тип</b>: {bus.type_bus}")
+            await message.answer("<b>🚍Ваш автобус:</b>\n\n\n"
+                                 "<b>⚙️Параметры автобуса</b>:\n"
+                                 f"<i>Номер</i>: {bus.number}\n"
+                                 f"<i>Марка</i>: {bus.brand}\n\n\n"
+                                 "<b>🏵Удобства/Оснащения</b>:\n"
+                                 f"<i>Кондиционер</i>: {'✅' if bus.condition else '❌'}\n"
+                                 f"<i>Микрофон для гида</i>: {'✅' if bus.microphone_for_guide else '❌'}\n"
+                                 f"<i>Монитор/ТВ</i>: {'✅' if bus.monitor else '❌'}\n"
+                                 f"<i>Откидные кресла</i>: {'✅' if bus.arm_chairs else '❌'}\n"
+                                 f"<i>Тип</i>: {bus.type_bus}")
+
         else:
             await message.answer("❌У вас нет зарегистрированных автобусов.")
             await bus_registration(message, state)
@@ -48,6 +51,10 @@ async def offers(message: types.Message, state: FSMContext):
             # Ищем подходящие заказы
             matching_requests = session.query(Request).filter(
                 and_(
+                    # Проверка, что маршруты не совпадают с уже зарегистрированными
+                    ~Request.date_range.in_([schedule.date_range for schedule in bus.schedules]),
+                    Request.status == 'active',
+
                     # Фильтрация по типу автобуса с учетом точного совпадения строки
                     (Request.minivan == (bus.type_bus == "Минивены (5-9 мест)")) |
                     (Request.microbus == (bus.type_bus == "Микроавтобусы (10-20 мест)")) |
@@ -56,14 +63,11 @@ async def offers(message: types.Message, state: FSMContext):
                     (Request.big_bus == (bus.type_bus == "Большие автобусы (46-60 мест)")) |
                     (Request.large_bus == (bus.type_bus == "Особо большие автобусы (61-90 мест)")),
 
-                    # Проверка, что маршруты не совпадают с уже зарегистрированными
-                    ~Request.date_range.in_([schedule.date_range for schedule in bus.schedules]),
-
                     # Фильтрация по наличию удобств
                     bus.condition or Request.condition == bus.condition,
                     bus.microphone_for_guide or Request.microphone_for_guide == bus.microphone_for_guide,
                     bus.monitor or Request.monitor == bus.monitor,
-                    bus.arm_chairs or Request.arm_chairs == bus.arm_chairs
+                    bus.arm_chairs or Request.arm_chairs == bus.arm_chairs,
                 )
             ).all()
 
@@ -151,10 +155,10 @@ async def handle_price(message: types.Message, state: FSMContext):
         session.add(response)
         session.commit()
 
-        await message.answer(f"Вы откликнулись на заказ №{request_id} с ценой {price} руб. Ваш отклик был успешно сохранен!")
+        await message.answer(f"🛎Вы откликнулись на заказ №{request_id} с ценой {price} руб.")
         await state.clear()  # Очищаем состояние
     else:
-        await message.answer("Ошибка! Не удалось найти этот заказ.")
+        await message.answer("❌Ошибка! Не удалось найти этот заказ.")
         await state.clear()  # Очищаем состояние
 
 
@@ -164,22 +168,20 @@ async def current_session(message: Message, state: FSMContext):
     user = session.query(User).filter(User.tg_id == message.from_user.id).first()
     if user:
         # Проверяем, есть ли у пользователя зарегистрированные автобусы
-        buses = session.query(Bus).filter(Bus.tg_id == user.tg_id).all()
-        if buses:
-            response = "Ваше расписание:\n\n"
-            for bus in buses:
-                schedules = session.query(Schedule).filter(Schedule.bus_id == bus.bus_id).all()
-                if schedules:
-                    response += f"🚍 Автобус {bus.number} ({bus.brand})\n"
-                    for schedule in schedules:
-                        response += f"📅 Даты: {schedule.date_range}\n"
-                    response += "\n"
-                else:
-                    response += f"🚍 Автобус {bus.number} ({bus.brand}) пока не имеет расписания.\n\n"
+        bus = session.query(Bus).filter(Bus.tg_id == user.tg_id).first()
+        if bus:
+            response = "<b>🗓Ваше расписание</b>:\n\n"
+            schedules = session.query(Schedule).filter(Schedule.bus_id == bus.bus_id).all()
+            if schedules:
+                for schedule in schedules:
+                    response += f"🔶 {schedule.date_range}\n"
+                response += "\n"
+            else:
+                response += f"🚍 Автобус {bus.number} ({bus.brand}) пока не имеет расписания.\n\n"
             await message.answer(response)
         else:
-            await message.answer("У вас нет зарегистрированных автобусов.")
+            await message.answer("❌У вас нет зарегистрированных автобусов.")
             await bus_registration(message, state)
     else:
-        await message.answer("Вы не зарегистрированы.")
+        await message.answer("❌Вы не зарегистрированы.")
         await user_password_waiting(message, state)

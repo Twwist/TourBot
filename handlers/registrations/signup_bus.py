@@ -38,7 +38,7 @@ async def bus_registration(message: types.Message, state: FSMContext):
 async def handle_bus_number(message: types.Message, state: FSMContext):
     number = message.text
     await state.update_data(number=number)
-    await message.answer("Введите марку автобуса:")
+    await message.answer("🚍 Введите марку автобуса:")
     await state.set_state(SignUpBus.brand)
 
 
@@ -48,10 +48,10 @@ async def handle_bus_brand(message: types.Message, state: FSMContext):
     brand = message.text
     await state.update_data(brand=brand)
     air_conditioner_keyboard = ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text="Да"), KeyboardButton(text="Нет")]],
+        keyboard=[[KeyboardButton(text="Да✅"), KeyboardButton(text="Нет❌")]],
         resize_keyboard=True
     )
-    await message.answer("Есть ли кондиционер в автобусе?", reply_markup=air_conditioner_keyboard)
+    await message.answer("❄️ Есть ли кондиционер в автобусе?", reply_markup=air_conditioner_keyboard)
     await state.set_state(SignUpBus.has_air_conditioning)
 
 
@@ -59,16 +59,16 @@ async def handle_bus_brand(message: types.Message, state: FSMContext):
 @bus_router.message(SignUpBus.has_air_conditioning)
 async def handle_air_conditioner(message: types.Message, state: FSMContext):
     has_air_conditioning = message.text.lower()
-    if has_air_conditioning not in ["да", "нет"]:
-        await message.answer("Выберите 'Да' или 'Нет' с помощью кнопок.")
+    if has_air_conditioning not in ["да✅", "нет❌"]:
+        await message.answer("❌ Выберите 'Да✅' или 'Нет❌' с помощью кнопок.")
         return
-    await state.update_data(has_air_conditioning=(has_air_conditioning == "да"))
+    await state.update_data(has_air_conditioning=(has_air_conditioning == "да✅"))
 
     mic_keyboard = ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text="Да"), KeyboardButton(text="Нет")]],
+        keyboard=[[KeyboardButton(text="Да✅"), KeyboardButton(text="Нет❌")]],
         resize_keyboard=True
     )
-    await message.answer("Есть ли микрофон для гида?", reply_markup=mic_keyboard)
+    await message.answer("🎤 Есть ли микрофон для гида?", reply_markup=mic_keyboard)
     await state.set_state(SignUpBus.mic_for_guide)
 
 
@@ -76,16 +76,16 @@ async def handle_air_conditioner(message: types.Message, state: FSMContext):
 @bus_router.message(SignUpBus.mic_for_guide)
 async def handle_mic_for_guide(message: types.Message, state: FSMContext):
     mic_for_guide = message.text.lower()
-    if mic_for_guide not in ["да", "нет"]:
-        await message.answer("Выберите 'Да' или 'Нет' с помощью кнопок.")
+    if mic_for_guide not in ["да✅", "нет❌"]:
+        await message.answer("❌ Выберите 'Да✅' или 'Нет❌' с помощью кнопок.")
         return
-    await state.update_data(mic_for_guide=(mic_for_guide == "да"))
+    await state.update_data(mic_for_guide=(mic_for_guide == "да✅"))
 
     tv_keyboard = ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text="Да"), KeyboardButton(text="Нет")]],
+        keyboard=[[KeyboardButton(text="Да✅"), KeyboardButton(text="Нет❌")]],
         resize_keyboard=True
     )
-    await message.answer("Есть ли монитор/ТВ?", reply_markup=tv_keyboard)
+    await message.answer("📺 Есть ли монитор/ТВ?", reply_markup=tv_keyboard)
     await state.set_state(SignUpBus.tv_monitor)
 
 
@@ -93,16 +93,16 @@ async def handle_mic_for_guide(message: types.Message, state: FSMContext):
 @bus_router.message(SignUpBus.tv_monitor)
 async def handle_tv_monitor(message: types.Message, state: FSMContext):
     tv_monitor = message.text.lower()
-    if tv_monitor not in ["да", "нет"]:
-        await message.answer("Выберите 'Да' или 'Нет' с помощью кнопок.")
+    if tv_monitor not in ["да✅", "нет❌"]:
+        await message.answer("❌ Выберите 'Да✅' или 'Нет❌' с помощью кнопок.")
         return
-    await state.update_data(tv_monitor=(tv_monitor == "да"))
+    await state.update_data(tv_monitor=(tv_monitor == "да✅"))
 
     recline_keyboard = ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text="Да"), KeyboardButton(text="Нет")]],
+        keyboard=[[KeyboardButton(text="Да✅"), KeyboardButton(text="Нет❌")]],
         resize_keyboard=True
     )
-    await message.answer("Есть ли откидные кресла?", reply_markup=recline_keyboard)
+    await message.answer("🛋️ Есть ли откидные кресла?", reply_markup=recline_keyboard)
     await state.set_state(SignUpBus.reclining_seats)
 
 
@@ -110,21 +110,23 @@ async def handle_tv_monitor(message: types.Message, state: FSMContext):
 @bus_router.message(SignUpBus.reclining_seats)
 async def handle_reclining_seats(message: types.Message, state: FSMContext):
     reclining_seats = message.text.lower()
-    if reclining_seats not in ["да", "нет"]:
-        await message.answer("Выберите 'Да' или 'Нет' с помощью кнопок.")
+    if reclining_seats not in ["да✅", "нет❌"]:
+        await message.answer("❌ Выберите 'Да✅' или 'Нет❌' с помощью кнопок.")
         return
-    await state.update_data(reclining_seats=(reclining_seats == "да"))
+    await state.update_data(reclining_seats=(reclining_seats == "да✅"))
 
     category_keyboard = ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="Минивены (5-9 мест)"), KeyboardButton(text="Микроавтобусы (10-20 мест)")],
-            [KeyboardButton(text="Малые автобусы (21-30 мест)"), KeyboardButton(text="Средние автобусы (31-45 мест)")],
-            [KeyboardButton(text="Большие автобусы (46-60 мест)"),
-             KeyboardButton(text="Особо большие автобусы (61-90 мест)")]
+            [KeyboardButton(text="Минивены (5-9 мест)")],
+            [KeyboardButton(text="Микроавтобусы (10-20 мест)")],
+            [KeyboardButton(text="Малые автобусы (21-30 мест)")],
+            [KeyboardButton(text="Средние автобусы (31-45 мест)")],
+            [KeyboardButton(text="Большие автобусы (46-60 мест)")],
+            [KeyboardButton(text="Особо большие автобусы (61-90 мест)")]
         ],
         resize_keyboard=True
     )
-    await message.answer("Выберите категорию транспорта:", reply_markup=category_keyboard)
+    await message.answer("🚐 Выберите категорию транспорта:", reply_markup=category_keyboard)
     await state.set_state(SignUpBus.category)
 
 
@@ -137,7 +139,7 @@ async def handle_category(message: types.Message, state: FSMContext):
         "Средние автобусы (31-45 мест)", "Большие автобусы (46-60 мест)", "Особо большие автобусы (61-90 мест)"
     ]
     if type_bus not in valid_categories:
-        await message.answer("Выберите категорию из предложенных.")
+        await message.answer("❌ Выберите категорию из предложенных.")
         return
     await state.update_data(type_bus=type_bus)
 
@@ -145,13 +147,13 @@ async def handle_category(message: types.Message, state: FSMContext):
     data = await state.get_data()
     await message.answer(
         f"✅ <b>Данные автобуса:</b>\n\n"
-        f"🔹 Номер: {data['number']}\n"
-        f"🔹 Марка: {data['brand']}\n"
-        f"🔹 Кондиционер: {'Да' if data['has_air_conditioning'] else 'Нет'}\n"
-        f"🔹 Микрофон для гида: {'Да' if data['mic_for_guide'] else 'Нет'}\n"
-        f"🔹 Монитор/ТВ: {'Да' if data['tv_monitor'] else 'Нет'}\n"
-        f"🔹 Откидные кресла: {'Да' if data['reclining_seats'] else 'Нет'}\n"
-        f"🔹 Категория: {data['type_bus']}"
+        f"🔷 Номер: {data['number']}\n"
+        f"🔷 Марка: {data['brand']}\n"
+        f"🔷 Кондиционер: {'Да✅' if data['has_air_conditioning'] else 'Нет❌'}\n"
+        f"🔷 Микрофон для гида: {'Да✅' if data['mic_for_guide'] else 'Нет❌'}\n"
+        f"🔷 Монитор/ТВ: {'Да✅' if data['tv_monitor'] else 'Нет❌'}\n"
+        f"🔷 Откидные кресла: {'Да✅' if data['reclining_seats'] else 'Нет❌'}\n"
+        f"🔷 Категория: {data['type_bus']}"
     )
 
     confirm_keyboard = InlineKeyboardMarkup(
@@ -160,7 +162,7 @@ async def handle_category(message: types.Message, state: FSMContext):
             [InlineKeyboardButton(text="❌ Не верно", callback_data="cancel_data")]
         ]
     )
-    await message.answer("Всё верно? Отправляем данные?", reply_markup=confirm_keyboard)
+    await message.answer("🔄 Всё верно? Отправляем данные?", reply_markup=confirm_keyboard)
     await state.set_state(SignUpBus.confirmation)
 
 

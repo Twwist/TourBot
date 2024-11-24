@@ -5,6 +5,7 @@ from handlers.registrations.start import start_router
 from handlers.registrations.signup_user import signup_router
 from handlers.menu.menu_handlers import menu_router
 from handlers.registrations.signup_bus import bus_router
+from notificarion import on_start
 
 
 # from work_time.time_func import send_time_msg
@@ -17,6 +18,7 @@ async def main():
     dp.include_router(menu_router)
     dp.include_router(bus_router)
 
+    await on_start()
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
