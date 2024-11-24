@@ -1,0 +1,175 @@
+{% extends "base3.html" %}
+
+{% block content %}
+<div class="container mt-5 d-flex flex-column justify-content-center align-items-center" style="min-height: 100vh;">
+    <!-- Форма с кнопкой "Добавить" -->
+    <form method="POST" action="{{ url_for('name.add_order') }}" class="w-100 mb-4">
+        {{ form.hidden_tag() }} <!-- Это нужно для защиты от CSRF атак -->
+
+        <!-- Кнопка Submit -->
+        <div class="d-flex justify-content-center">
+            {{ form.submit(type="submit", class="btn btn-success w-100") }}
+        </div>
+    </form>
+
+    <!-- Кнопка Архив -->
+    <div class="d-flex justify-content-center w-100 mb-4">
+        <a href="{{ url_for('name.archieve') }}" class="btn btn-archive w-100">Архив</a>
+    </div>
+
+    <!-- Таблица с запросами -->
+    {% if reqs %}
+    <div class="mt-4">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+            <tr>
+                <th>№</th>
+                <th>Маршрут</th>
+                <th>Диапазон дат</th>
+                <th>Типы транспорта</th>
+                <th>Оборудование</th>
+                <th>Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for req in reqs %}
+            <tr>
+                <td>{{ req.request_id }}</td>
+                <td>{{ req.route }}</td>
+                <td>{{ req.date_range }}</td>
+
+                <!-- Типы транспорта -->
+                <td>
+                    {% if req.minivan %}<span>Минивэн</span><br>{% endif %}
+                    {% if req.microbus %}<span>Микроавтобус</span><br>{% endif %}
+                    {% if req.small_bus %}<span>Малый автобус</span><br>{% endif %}
+                    {% if req.medium_bus %}<span>Средний автобус</span><br>{% endif %}
+                    {% if req.big_bus %}<span>Большой автобус</span><br>{% endif %}
+                    {% if req.large_bus %}<span>Очень большой автобус</span><br>{% endif %}
+                </td>
+
+                <!-- Оборудование -->
+                <td>
+                    {% if req.condition %}<span>Кондиционер</span><br>{% endif %}
+                    {% if req.microphone_for_guide %}<span>Микрофон для гида</span><br>{% endif %}
+                    {% if req.monitor %}<span>Монитор / ТВ</span><br>{% endif %}
+                    {% if req.arm_chairs %}<span>Откидные кресла</span><br>{% endif %}
+                </td>
+
+                <td>
+                    <!-- Кнопка "Подробнее", ссылающаяся на страницу с деталями запроса -->
+                    <a href="{{ url_for('name.order_details', num_order=req.request_id) }}" class="btn btn-info btn-sm">Подробнее</a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="mt-4">У вас нет активных заказов.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+<!-- Добавляем стили для улучшения внешнего вида -->
+<style>
+    /* Центрируем содержимое по вертикали и горизонтали */
+    .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh; /* Центрируем элементы по высоте */
+    }
+
+    /* Отступы для кнопок */
+    .mb-4 {
+        margin-bottom: 16px;
+    }
+
+    /* Кнопка "Добавить" - яркий кислотный цвет */
+    .btn-success {
+        background-color: #00FF00; /* Ярко-зеленый */
+        border-color: #00CC00; /* Более темный оттенок для границы */
+    }
+
+    .btn-success:hover {
+        background-color: #33FF33; /* Светло-зеленый при наведении */
+        border-color: #33CC33;
+    }
+
+    /* Кнопка "Архив" - серый цвет */
+    .btn-archive {
+        background-color: #6c757d; /* Серый цвет */
+        border-color: #6c757d;
+    }
+
+    .btn-archive:hover {
+        background-color: #5a6268; /* Темнее серый при наведении */
+        border-color: #545b62;
+    }
+
+    /* Убираем стандартные отступы для кнопок */
+    .w-100 {
+        width: 100%;
+    }
+</style>
+<!-- Добавляем стили для улучшения внешнего вида -->
+<style>
+    /* Центрируем содержимое по вертикали и горизонтали */
+    .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh; /* Центрируем элементы по высоте */
+    }
+
+    /* Отступы для кнопок */
+    .mb-4 {
+        margin-bottom: 16px;
+    }
+
+    /* Кнопка "Добавить" - яркий кислотный цвет */
+    .btn-success {
+        background-color: #00FF00; /* Ярко-зеленый */
+        border-color: #00CC00; /* Более темный оттенок для границы */
+    }
+
+    .btn-success:hover {
+        background-color: #33FF33; /* Светло-зеленый при наведении */
+        border-color: #33CC33;
+    }
+
+    /* Кнопка "Архив" - серый цвет */
+    .btn-archive {
+        background-color: #6c757d; /* Серый цвет */
+        border-color: #6c757d;
+        color: white; /* Белый цвет текста для контраста */
+    }
+
+    .btn-archive:hover {
+        background-color: #5a6268; /* Темнее серый при наведении */
+        border-color: #545b62;
+        color: white; /* Белый текст при наведении */
+    }
+
+/* Кнопка "Архив" - серый цвет */
+.btn-archive {
+    background-color: #6c757d; /* Серый цвет */
+    border-color: #6c757d;
+    width: 100%; /* Ширина кнопки по всей доступной ширине */
+    text-align: center; /* Текст по центру */
+    padding: 10px 0; /* Отступы для кнопки сверху и снизу */
+}
+
+.btn-archive:hover {
+    background-color: #5a6268; /* Темнее серый при наведении */
+    border-color: #545b62;
+}
+
+    /* Убираем стандартные отступы для кнопок */
+    .w-100 {
+        width: 100%;
+    }
+</style>

@@ -1,0 +1,105 @@
+{% extends "base3.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg mt-5"> <!-- Добавлен отступ mt-5 для карты -->
+                <div class="card-header bg-primary text-white">
+                    <h3 class="text-center">Регистрация</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Сообщение об ошибке -->
+                    {% if message %}
+                        <div id="message" class="alert alert-danger text-center" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endif %}
+
+                    <form id="registrationForm" action="" method="post">
+                        {{ form.hidden_tag() }}
+                        {{ form.csrf_token }}
+
+                        <!-- Поле ввода имени пользователя -->
+                        <div class="mb-3">
+                            {{ form.username.label(class="form-label") }}
+                            {{ form.username(class="form-control") }}
+                            {% for error in form.username.errors %}
+                                <div class="alert alert-danger mt-2" role="alert">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Поле ввода пароля -->
+                        <div class="mb-3">
+                            {{ form.password.label(class="form-label") }}
+                            {{ form.password(class="form-control", type="password") }}
+                            {% for error in form.password.errors %}
+                                <div class="alert alert-danger mt-2" role="alert">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Подтверждение пароля -->
+                        <div class="mb-3">
+                            {{ form.confirm.label(class="form-label") }}
+                            {{ form.confirm(class="form-control", type="password") }}
+                            {% for error in form.confirm.errors %}
+                                <div class="alert alert-danger mt-2" role="alert">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Кнопка отправки -->
+                        <div class="d-grid">
+                            {{ form.submit(type="submit", class="btn btn-primary btn-block") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('registrationForm');
+        const message = document.getElementById('message');
+
+        // Валидация при отправке формы
+        form.addEventListener('submit', (e) => {
+            let isValid = true;
+            const inputs = form.querySelectorAll('.form-control');
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    isValid = false;
+                    input.classList.add('is-invalid');
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+            });
+            if (!isValid) {
+                e.preventDefault();
+                message.innerHTML = `<div class="alert alert-danger">Пожалуйста, заполните все поля!</div>`;
+            }
+        });
+
+        // Динамическая валидация
+        const inputs = form.querySelectorAll('.form-control');
+        inputs.forEach(input => {
+            input.addEventListener('input', () => {
+                if (input.value.trim()) {
+                    input.classList.remove('is-invalid');
+                    input.classList.add('is-valid');
+                } else {
+                    input.classList.remove('is-valid');
+                    input.classList.add('is-invalid');
+                }
+            });
+        });
+    });
+</script>

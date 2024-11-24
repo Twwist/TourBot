@@ -1,0 +1,69 @@
+{% extends "base3.html" %}
+
+{% block content %}
+<div class="container mt-5">
+
+    <!-- Проверяем, есть ли предложения -->
+    {% if buses_info|length > 0 %}
+        <form method="POST">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Номер автобуса</th>
+                    <th>Марка</th>
+                    <th>Имя водителя</th>
+                    <th>Тип автобуса</th>
+                    <th>Оборудование</th>
+                    <th>Цена</th>
+                    {% if not show_phone %}
+                    <th>Действия</th>
+                    {% else %}
+                    <th>Номер телефона</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in buses_info %}
+                <tr>
+                    <td>{{ item.bus.bus_id }}</td>
+                    <td>{{ item.bus.number }}</td>
+                    <td>{{ item.bus.brand }}</td>
+                    <td>{{ item.bus.driver_name }}</td>
+                    <td>{{ item.bus.type_bus }}</td>
+
+                    <!-- Оборудование автобуса -->
+                    <td>
+                        {% if item.bus.condition %}<span>Кондиционер</span><br>{% endif %}
+                        {% if item.bus.microphone_for_guide %}<span>Микрофон для гида</span><br>{% endif %}
+                        {% if item.bus.monitor %}<span>Монитор / ТВ</span><br>{% endif %}
+                        {% if item.bus.arm_chairs %}<span>Откидные кресла</span><br>{% endif %}
+                    </td>
+
+                    <!-- Цена из отклика -->
+                    <td>{{ item.price }} руб.</td>
+
+                    {% if not show_phone %}
+                    <!-- Форма с кнопкой "Принять" -->
+                    <td>
+                        <form action="{{ url_for('name.order_details', num_order=num_order) }}" method="POST">
+                            <input type="hidden" name="response_id" value="{{ item.bus.bus_id }}">
+                            <button type="submit" class="btn btn-success btn-sm">Принять</button>
+                        </form>
+                    </td>
+                    {% else %}
+                    <!-- Номер телефона водителя -->
+                    <td>{{ item.phone_number }}</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </form>
+    {% else %}
+        <!-- Сообщение, если предложений нет -->
+        <p class="text-center mt-4">На данный момент предложений нет.</p>
+    {% endif %}
+
+</div>
+{% endblock %}

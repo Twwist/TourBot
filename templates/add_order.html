@@ -1,0 +1,85 @@
+{% extends 'base3.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-center mb-4">Добавление нового запроса</h1>
+    <form method="POST" class="form-container">
+
+        <div class="form-group mb-3">
+            <h5 for="start_date" class="form-label">Начальная дата</h5>
+            {{ form.start_date(class="form-control flatpickr", placeholder="Выберите начальную дату") }}
+        </div>
+
+        <div class="form-group mb-3">
+            <h5 for="end_date" class="form-label">Конечная дата</h5>
+            {{ form.end_date(class="form-control flatpickr", placeholder="Выберите конечную дату") }}
+        </div>
+
+        <div class="form-group mb-3">
+            <h5 for="route" class="form-label">Маршрут</h5>
+            {{ form.route(class="form-control", placeholder="Введите маршрут") }}
+        </div>
+
+        <div class="form-group mb-3">
+            <h5 for="transport_types" class="form-label">Типы транспорта</h5>
+            <div>
+                {% for subfield in form.transport_types %}
+                <div class="form-check">
+                    {{ subfield(class="form-check-input") }}
+                    <label class="form-check-label">{{ subfield.label.text }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+
+        <!-- Секция выбора удобств и оснащения -->
+        <div class="form-group mb-3">
+            <h5 for="facilities" class="form-label">Удобства и оснащение</h5>
+            <div>
+                {% for subfield in form.facilities %}
+                <div class="form-check">
+                    {{ subfield(class="form-check-input") }}
+                    <label class="form-check-label">{{ subfield.label.text }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+
+        <div class="d-flex justify-content-start mb-4">
+            {{ form.confirm(class="btn btn-success") }}
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+<script>
+    flatpickr(".flatpickr", {
+        dateFormat: "Y-m-d",
+        minDate: "today",
+    });
+
+    // Обновление minDate для поля "Конечная дата" в зависимости от выбора "Начальной даты"
+    flatpickr("#start_date", {
+        dateFormat: "Y-m-d", // Формат даты
+        onChange: function(selectedDates, dateStr, instance) {
+            document.querySelector("#end_date")._flatpickr.set('minDate', dateStr);
+        }
+    });
+</script>
+<style>
+    .form-check-input {
+        margin-right: 10px; /* Отступ между чекбоксом и текстом */
+    }
+
+    .form-check {
+        display: flex;
+        align-items: center; /* Выравнивание чекбокса и текста по вертикали */
+        margin-bottom: 10px; /* Расстояние между строками чекбоксов */
+    }
+
+    .form-group {
+        margin-bottom: 20px; /* Расстояние между группами полей */
+    }
+</style>
